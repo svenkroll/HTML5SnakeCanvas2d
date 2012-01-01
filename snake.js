@@ -10,7 +10,9 @@ function checkSupported() {
  		var y = 50;
  		var width = 10;
  		var height = 10;
- 
+ 		snakeBody = [];
+ 		snakeLength = 3;
+ 		
 		// This draws a square with the parameters from the variables set above
 		ctx.fillRect(x, y, width, height);
 		
@@ -97,7 +99,12 @@ function whichWayToGo(axisType){
 }
 
 function drawSnake() {
-   ctx.fillRect(currentPosition['x'], currentPosition['y'], gridSize, gridSize);
+	snakeBody.push([currentPosition['x'], currentPosition['y']]);
+   	ctx.fillRect(currentPosition['x'], currentPosition['y'], gridSize, gridSize);
+   	if (snakeBody.length > snakeLength) {
+		var itemToRemove = snakeBody.shift();
+		ctx.clearRect(itemToRemove[0], itemToRemove[1], gridSize, gridSize);
+	}
 }
  
 function keyPressed(event)
