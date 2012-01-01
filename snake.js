@@ -1,7 +1,7 @@
 function checkSupported() {
     canvas = document.getElementById('canvas');
     if (canvas.getContext){
-      	ctx = canvas.getContext('2d');
+      	ctx = canvas.getContext('2d');  
       	// Canvas is supported
        	// This sets the fill color to red
  		ctx.fillStyle = "rgb(200,0,0)"; 
@@ -12,14 +12,13 @@ function checkSupported() {
  		var height = 10;
  		snakeBody = [];
  		snakeLength = 3;
- 		
-		// This draws a square with the parameters from the variables set above
-		ctx.fillRect(x, y, width, height);
-		
+ 		foodItems = 0;
+                maxFoodItems = 1;
 		// The current position of the Snake's head, as xy coordinates
 		this.currentPosition = {'x':50, 'y':50}; 
 		direction = 'right';
-		setInterval(moveSnake,100);
+                
+		setInterval(snakeLoop,100);
 
 		// Sets the grid dimensions as one value
 		this.gridSize = 10;
@@ -31,6 +30,23 @@ function checkSupported() {
       alert("We're sorry, but your browser does not support the canvas tag. Please use any web browser other than Internet Explorer.");
     }
  }
+
+function makeFoodItem(){
+   suggestedPoint = [Math.floor(Math.random()*(canvas.width/gridSize))*gridSize, Math.floor(Math.random()*(canvas.height/gridSize))*gridSize];
+   if (snakeBody.some(hasPoint)) {
+     makeFoodItem();
+   } else {
+     ctx.fillStyle = "rgb(10,100,0)";
+     ctx.fillRect(suggestedPoint[0], suggestedPoint[1], gridSize, gridSize);
+     foodItems = 1;
+   }
+}
+
+function hasPoint(element, index, array) 
+{
+   return (element[0] == suggestedPoint[0] && element[1] == suggestedPoint[1]);
+}
+
 
 function moveUp(){
  	if ((currentPosition['y'] - gridSize) >= 0) {
@@ -70,7 +86,12 @@ function executeMove(dirValue, axisType, axisValue) {
    drawSnake();
 }
 
-function moveSnake(){
+function snakeLoop(){
+   if (foodItems < maxFoodItems)
+   {
+       makeFoodItem();
+   }
+   
    switch(direction){
      case 'up':
        	moveUp();
@@ -88,7 +109,7 @@ function moveSnake(){
        moveRight();
        break;
    }
-}// End moveSnake
+}// End snakeLoop
 
 function whichWayToGo(axisType){  
   if (axisType=='x') {
@@ -105,6 +126,10 @@ function drawSnake() {
 		var itemToRemove = snakeBody.shift();
 		ctx.clearRect(itemToRemove[0], itemToRemove[1], gridSize, gridSize);
 	}
+        if (currentPosition['x'] == suggestedPoint[0] && currentPosition['y'] == suggestedPoint[1]) {
+            makeFoodItem();
+            snakeLength += 1;
+        }
 }
  
 function keyPressed(event)
@@ -142,7 +167,7 @@ function keyPressed(event)
 			     	// action when pressing down key
 			     	direction = 'down';
 			       	break; 		 
-			     default: 
+			     default:
 			       break; 
 			  } //End switch
 }//End onkeydown
