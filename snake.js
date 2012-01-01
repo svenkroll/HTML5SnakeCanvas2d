@@ -1,5 +1,3 @@
-
-
 function checkSupported() {
     canvas = document.getElementById('canvas');
     if (canvas.getContext){
@@ -31,31 +29,72 @@ function checkSupported() {
       alert("We're sorry, but your browser does not support the canvas tag. Please use any web browser other than Internet Explorer.");
     }
  }
+
+function moveUp(){
+ 	if ((currentPosition['y'] - gridSize) >= 0) {
+     executeMove('up', 'y', (currentPosition['y'] - gridSize));
+   } else {
+     whichWayToGo('x');
+   }
+ }
  
+function moveDown(){
+   if ((currentPosition['y'] + gridSize) < canvas.height) {
+     executeMove('down', 'y', (currentPosition['y'] + gridSize));    
+   } else {
+     whichWayToGo('x');
+   }
+ }
+ 
+function moveLeft(){
+   if ((currentPosition['x'] - gridSize) >= 0) {
+     executeMove('left', 'x', (currentPosition['x'] - gridSize));
+   } else {
+     whichWayToGo('y');
+   }
+ }
+ 
+function moveRight(){
+   if ((currentPosition['x'] + gridSize) < canvas.width) {
+     executeMove('right', 'x', (currentPosition['x'] + gridSize));
+   } else {
+     whichWayToGo('y');
+   }
+}
+
+function executeMove(dirValue, axisType, axisValue) {
+   direction = dirValue;
+   currentPosition[axisType] = axisValue;
+   drawSnake();
+}
+
 function moveSnake(){
    switch(direction){
      case 'up':
-       	currentPosition['y'] = currentPosition['y'] - gridSize;
-       	drawSnake();
+       	moveUp();
        	break;
  
      case 'down':
-     	
-       	currentPosition['y'] = currentPosition['y'] + gridSize;
-       	drawSnake();
+       	moveDown();
        	break;
  
      case 'left':
-       	currentPosition['x'] = currentPosition['x'] - gridSize;
-       	drawSnake();
+       	moveLeft();
        	break;
  
      case 'right':
-       currentPosition['x'] = currentPosition['x'] + gridSize;
-       drawSnake();
+       moveRight();
        break;
    }
 }// End moveSnake
+
+function whichWayToGo(axisType){  
+  if (axisType=='x') {
+    a = (currentPosition['x'] > canvas.width / 2) ? moveLeft() : moveRight();
+  } else {
+    a = (currentPosition['y'] > canvas.height / 2) ? moveUp() : moveDown();
+  }
+}
 
 function drawSnake() {
    ctx.fillRect(currentPosition['x'], currentPosition['y'], gridSize, gridSize);
@@ -77,36 +116,25 @@ function keyPressed(event)
    			{
 			     // left 
 			     case 37:
-			     	// set new position, and draw square at that position.
+			     	// action when pressing left key.
 			     	direction = 'left';
-			       	currentPosition['x'] = currentPosition['x'] - gridSize;
- 	     			drawSnake();
 					break; 
 			 
 			     // up 
 			     case 38:
-			     // action when pressing up key
-			     	direction = 'up';
-			       	currentPosition['y'] = currentPosition['y'] - gridSize;
-					drawSnake();
+			     	// action when pressing up key
+			     	direction = 'up';	       	
 					break; 
-			 
 			     // right 
 			     case 39:	
-			     // action when pressing right key
-			       	direction = 'right';
-			       	currentPosition['x'] = currentPosition['x'] + gridSize;
-					drawSnake();
-					break;
-			 
+			     	// action when pressing right key
+			       	direction = 'right';	       
+					break;		 
 			     // down
 			     case 40:
-			     // action when pressing down key
+			     	// action when pressing down key
 			     	direction = 'down';
-			     	currentPosition['y'] = currentPosition['y'] + gridSize;
-			       	drawSnake();
-			       	break; 
-			 
+			       	break; 		 
 			     default: 
 			       break; 
 			  } //End switch
