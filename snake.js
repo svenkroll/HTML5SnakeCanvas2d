@@ -10,6 +10,13 @@ function checkSupported() {
         ctx.fillStyle = "rgb(200,0,0)";  
         ctx_m.fillStyle = "rgb(200,0,0)";  
         this.gridSize = 10;
+        
+        canvas_menue.onmousedown = function(e) {
+            mouse_x = e.clientX - canvas_menue.offsetLeft;
+            mouse_y = e.clientY - canvas.offsetTop; 
+            checkButtonClicked();
+        }
+        interval = setInterval(snakeLoop,100);
         start();
     } else {
       // Canvas is not supported
@@ -33,7 +40,6 @@ function hasPoint(element, index, array)
 {
    return (element[0] == suggestedPoint[0] && element[1] == suggestedPoint[1]);
 }
-
 
 function moveUp(){
     if ((currentPosition['y'] - gridSize) >= 0) {
@@ -74,37 +80,95 @@ function executeMove(dirValue, axisType, axisValue) {
 }
 
 function snakeLoop(){
-   updateScore();
-   if (foodItems < maxFoodItems)
-   {
-       makeFoodItem();
+   drawMenue();   
+   if (!paused){
+       updateScore();
+       if (foodItems < maxFoodItems)
+       {
+           makeFoodItem();
+       }
+
+       switch(direction){
+         case 'up':
+            moveUp();
+            break;
+
+         case 'down':
+            moveDown();
+            break;
+
+         case 'left':
+            moveLeft();
+            break;
+
+         case 'right':
+           moveRight();
+           break;
+       }
    }
    
-   switch(direction){
-     case 'up':
-       	moveUp();
-       	break;
- 
-     case 'down':
-       	moveDown();
-       	break;
- 
-     case 'left':
-       	moveLeft();
-       	break;
- 
-     case 'right':
-       moveRight();
-       break;
-   }
-   drawMenue();
 }// End snakeLoop
+
+function checkButtonClicked()
+{
+        if (paused){
+            //Button Restart clickd?
+            if ((mouse_x > buttonRestart.x) && (mouse_x < (buttonRestart.x + buttonRestart.width))){
+                //within horizon, test vertical
+                if ((mouse_y > buttonRestart.y) && (mouse_y < (buttonRestart.y + buttonRestart.height))){
+                    restart();
+                }
+            }
+            
+            //Button Resume clicked?
+            if ((mouse_x > buttonResume.x) && (mouse_x < (buttonResume.x + buttonResume.width))){
+                //within horizon, test vertical
+                if ((mouse_y > buttonResume.y) && (mouse_y < (buttonResume.y + buttonResume.height))){
+                    play();
+                }
+            }
+            
+        }
+        else{
+            //Button pause clicked?
+            if ((mouse_x > buttonPause.x) && (mouse_x < (buttonPause.x + buttonPause.width))){
+                //within horizon, test vertical
+                if ((mouse_y > buttonPause.y) && (mouse_y < (buttonPause.y + buttonPause.height))){
+                    pause();
+                }
+            }
+        }
+}
 
 function drawMenue()
 {
     ctx_m.font = "18pt Arial"; 
     ctx_m.clearRect(0,0, canvas_menue.width, canvas_menue.height);
-    ctx_m.fillText("Score: " + score, 10, 20); 
+    
+    ctx_m.fillStyle = "rgb(150,29,28)";
+    ctx_m.fillText("Score: " + score, 20, 230); 
+    
+    //Draw Buttons
+    ctx_m.fillStyle = "rgb(150,29,28)";
+    if (!paused) {
+        ctx_m.fillRect (buttonPause.x, buttonPause.y, buttonPause.width, buttonPause.height);
+    }
+    else
+    {
+        ctx_m.fillRect (buttonResume.x, buttonResume.y, buttonResume.width, buttonResume.height);
+        ctx_m.fillRect (buttonRestart.x, buttonRestart.y, buttonRestart.width, buttonRestart.height);
+    }
+    
+    ctx_m.fillStyle = "rgb(255,255,255)";
+    if (!paused) {
+        ctx_m.fillText("Pause" , buttonPause.x + 5, buttonPause.y + 20);
+    }
+    else
+    {
+        ctx_m.fillText("Resume" , buttonResume.x + 5, buttonResume.y + 20);
+        ctx_m.fillText("Restart" , buttonRestart.x + 5, buttonRestart.y + 20);
+    }
+    
 }
 
 function whichWayToGo(axisType){  
@@ -158,20 +222,41 @@ function gameOver()
 }
 
 function pause(){
-    clearInterval(interval);
+    //clearInterval(interval);
     allowPressKeys = false;
+    paused = true;
 }
 
 function play(){
     updateScore();
-    interval = setInterval(snakeLoop,100);
+    paused = false;
     allowPressKeys = true;
 }
 
 function start(){
+    
+    buttonPause = new Object();
+    buttonPause.x = 20;
+    buttonPause.y = 50;
+    buttonPause.width = 100;
+    buttonPause.height = 25;
+    
+    buttonRestart = new Object();
+    buttonRestart.x = 20;
+    buttonRestart.y = 80;
+    buttonRestart.width = 100;
+    buttonRestart.height = 25;
+    
+    buttonResume = new Object();
+    buttonResume.x = 20;
+    buttonResume.y = 110;
+    buttonResume.width = 100;
+    buttonResume.height = 25;
+    
     document.onkeydown = keyPressed;
     ctx.clearRect(0,0, canvas.width, canvas.height);
     snakeBody = [];
+    paused = false;
     snakeLength = 3;
     foodItems = 0;
     maxFoodItems = 1;
